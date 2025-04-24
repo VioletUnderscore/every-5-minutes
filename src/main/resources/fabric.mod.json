@@ -11,7 +11,7 @@
 		"homepage": "https://youtube.com/@VioletUnderscore",
 		"sources": "https://github.com/VioletUnderscore/every-5-minutes"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT License",
 	"icon": "assets/violet_every5minutes/icon.png",
 	"environment": "*",
 	"entrypoints": {
