@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "violet_every5minutes",
+	"version": "${version}",
+	"name": "Violet's Every 5 Minutes!",
+	"description": "All of my Every 5 Minutes Challenges!",
+	"authors": [
+		"VioletUnderscore"
+	],
+	"contact": {
+		"homepage": "https://youtube.com/@VioletUnderscore",
+		"sources": "https://github.com/VioletUnderscore/every-5-minutes"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/violet_every5minutes/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.violetunderscore.every5minutes.Every5Minutes"
+		],
+		"fabric-datagen": [
+			"net.violetunderscore.every5minutes.Every5MinutesDataGenerator"
+		],
+		"client": [
+			"net.violetunderscore.every5minutes.Every5MinutesClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.16.5",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
