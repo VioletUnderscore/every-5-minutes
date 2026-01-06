@@ -5,10 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributeModifier.Operation;
@@ -28,11 +25,15 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.NbtWriteView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
+import net.minecraft.util.ErrorReporter;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.TeleportTarget;
 import net.violetunderscore.every5minutes.returns.returnRandoms;
 import net.violetunderscore.every5minutes.vars.TickData;
@@ -53,7 +54,7 @@ public class Every5Minutes implements ModInitializer {
 			ServerWorld world = server.getOverworld();
 			TickData data = world
 					.getPersistentStateManager()
-					.getOrCreate(TickData.TYPE, "e5m_tick_data");
+					.getOrCreate(TickData.TYPE);
 
 			if (data.active) {
 				if (++data.ticks >= data.interval * (server.getTickManager().getTickRate() / 20)) {
@@ -88,13 +89,17 @@ public class Every5Minutes implements ModInitializer {
 
 				if (data.challenge == 5) {
 					for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-						var attrInstance = player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
-						if (attrInstance == null) continue;
+						var attrInstance = player.getAttributeInstance(EntityAttributes.MAX_HEALTH);
+                        if (attrInstance == null) continue;
+                        if (player.getGameMode() == GameMode.CREATIVE) continue;
+                        if (player.getGameMode() == GameMode.SPECTATOR) continue;
 						if (attrInstance.getModifier(HEALTH_REDUCTION_ID) == null) {
 							var modifier = new EntityAttributeModifier(HEALTH_REDUCTION_ID, -data.counter, Operation.ADD_VALUE);
 							attrInstance.addPersistentModifier(modifier);
 							if (data.counter >= 20) {
 								player.setHealth(0);
+                                player.changeGameMode(GameMode.SPECTATOR);
+                                server.sendMessage(player.getStyledDisplayName().copy().append(" ran out of health"));
 							} else {
 								if (player.getHealth() > player.getMaxHealth()) {
 									player.setHealth(player.getMaxHealth());
@@ -126,8 +131,8 @@ public class Every5Minutes implements ModInitializer {
             }
         }
         for (Entity entity : entities) {
-            entity.teleport(p.getServerWorld(), p.getX(), p.getY(), p.getZ(),
-                    EnumSet.noneOf(PositionFlag.class), p.getYaw(), p.getPitch());
+            entity.teleport(p.getEntityWorld(), p.getX(), p.getY(), p.getZ(),
+                    EnumSet.noneOf(PositionFlag.class), p.getYaw(), p.getPitch(), false);
         }
 	}
 	public void increaseTickRate(MinecraftServer server, TickData data) {
@@ -162,19 +167,20 @@ public class Every5Minutes implements ModInitializer {
 	public void randomSwarm(MinecraftServer server, TickData data) {
 		for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 			Identifier id = Identifier.tryParse(
-					//returnRandoms.returnMob()
-					"minecraft:warden"
+					returnRandoms.returnMob()
 			);
 			for (int i = 0; i < data.counter; i++) {
-				spawnMob(Objects.requireNonNull(player.getServer()).getWorld(player.getWorld().getRegistryKey()), player.getBlockPos(), id);
+				spawnMob(Objects.requireNonNull(player.getEntityWorld().getServer()).getWorld(player.getEntityWorld().getRegistryKey()), player.getBlockPos(), id);
 			}
 		}
 	}
 	public void loseHealth(MinecraftServer server, TickData data) {
 		for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 
-			var attrInstance = player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH);
+			var attrInstance = player.getAttributeInstance(EntityAttributes.MAX_HEALTH);
 			if (attrInstance == null) continue;
+            if (player.getGameMode() == GameMode.CREATIVE) continue;
+            if (player.getGameMode() == GameMode.SPECTATOR) continue;
 
 			if (attrInstance.getModifier(HEALTH_REDUCTION_ID) != null) {
 				attrInstance.removeModifier(HEALTH_REDUCTION_ID);
@@ -184,7 +190,9 @@ public class Every5Minutes implements ModInitializer {
 			attrInstance.addPersistentModifier(modifier);
 
 			if (data.counter >= 20) {
-				player.setHealth(0);
+                player.setHealth(0);
+                player.changeGameMode(GameMode.SPECTATOR);
+                server.sendMessage(player.getStyledDisplayName().copy().append(" ran out of health"));
 			} else {
 				if (player.getHealth() > player.getMaxHealth()) {
 					player.setHealth(player.getMaxHealth());
@@ -215,7 +223,7 @@ public class Every5Minutes implements ModInitializer {
 		EntityType<?> entityType = Registries.ENTITY_TYPE.get(id);
 
 		if (entityType != null) {
-			Entity entity = entityType.create(world);
+			Entity entity = entityType.create(world, SpawnReason.COMMAND);
 			if (entity != null) {
 				BlockPos pos2 = SpawnLocation(world, pos, entity);
 				entity.refreshPositionAndAngles(pos2, 0, 0);
@@ -395,14 +403,20 @@ public class Every5Minutes implements ModInitializer {
     public static void cloneMob(Entity e) {
         if (e == null) return;
         NbtCompound nbt = new NbtCompound();
-        e.writeNbt(nbt);
+
+        try (ErrorReporter.Logging logging = new ErrorReporter.Logging(LOGGER)) {
+            NbtWriteView writeView = NbtWriteView.create(logging, e.getEntityWorld().getRegistryManager());
+            e.saveSelfData(writeView);
+            nbt = writeView.getNbt();
+        }
+
         nbt.remove("UUID");
 
         Identifier id = EntityType.getId(e.getType());
         if (id == null) return;
         nbt.putString("id", id.toString());
 
-        Entity e2 = EntityType.loadEntityWithPassengers(nbt, e.getWorld(), entity -> {
+        Entity e2 = EntityType.loadEntityWithPassengers(nbt, e.getEntityWorld(), SpawnReason.COMMAND, entity -> {
             entity.refreshPositionAndAngles(
                     e.getX(),
                     e.getY(),
@@ -413,7 +427,7 @@ public class Every5Minutes implements ModInitializer {
             return entity;
         });
         if (e2 != null) {
-            e.getWorld().spawnEntity(e2);
+            e.getEntityWorld().spawnEntity(e2);
         }
     }
 

@@ -25,7 +25,7 @@ public class Every5MinutesBaseCommands {
                             .executes(context -> {
                                 TickData data = context.getSource().getServer().getOverworld()
                                         .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                        .getOrCreate(TickData.TYPE);
                                 data.active = false;
                                 data.markDirty();
 
@@ -38,7 +38,7 @@ public class Every5MinutesBaseCommands {
                             .executes(context -> {
                                 TickData data = context.getSource().getServer().getOverworld()
                                         .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                        .getOrCreate(TickData.TYPE);
                                 data.active = true;
                                 data.markDirty();
 
@@ -51,7 +51,7 @@ public class Every5MinutesBaseCommands {
                             .executes(context -> {
                                 TickData data = context.getSource().getServer().getOverworld()
                                         .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                        .getOrCreate(TickData.TYPE);
                                 data.active = false;
                                 data.counter = 0;
                                 data.ticks = 0;
@@ -67,7 +67,7 @@ public class Every5MinutesBaseCommands {
                             .executes(context -> {
                                 TickData data = context.getSource().getServer().getOverworld()
                                         .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                        .getOrCreate(TickData.TYPE);
                                 data.active = true;
                                 data.counter = 0;
                                 data.ticks = 0;
@@ -89,7 +89,7 @@ public class Every5MinutesBaseCommands {
                                             .executes(context -> {
                                                 TickData data = context.getSource().getServer().getOverworld()
                                                         .getPersistentStateManager()
-                                                        .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                        .getOrCreate(TickData.TYPE);
                                                 data.interval = IntegerArgumentType.getInteger(context, "interval");
                                                 data.markDirty();
 
@@ -106,7 +106,7 @@ public class Every5MinutesBaseCommands {
                                             .executes(context -> {
                                                 TickData data = context.getSource().getServer().getOverworld()
                                                         .getPersistentStateManager()
-                                                        .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                        .getOrCreate(TickData.TYPE);
                                                 data.interval = IntegerArgumentType.getInteger(context, "interval") * 20;
                                                 data.markDirty();
 
@@ -123,7 +123,7 @@ public class Every5MinutesBaseCommands {
                                             .executes(context -> {
                                                 TickData data = context.getSource().getServer().getOverworld()
                                                         .getPersistentStateManager()
-                                                        .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                        .getOrCreate(TickData.TYPE);
                                                 data.interval = IntegerArgumentType.getInteger(context, "interval") * 20 * 60;
                                                 data.markDirty();
 
@@ -143,7 +143,7 @@ public class Every5MinutesBaseCommands {
                                     .executes(context -> {
                                         TickData data = context.getSource().getServer().getOverworld()
                                                 .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                .getOrCreate(TickData.TYPE);
                                         data.challenge = 1;
                                         data.markDirty();
 
@@ -159,7 +159,7 @@ public class Every5MinutesBaseCommands {
                                     .executes(context -> {
                                         TickData data = context.getSource().getServer().getOverworld()
                                                 .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                .getOrCreate(TickData.TYPE);
                                         data.challenge = 2;
                                         data.markDirty();
 
@@ -175,7 +175,7 @@ public class Every5MinutesBaseCommands {
                                     .executes(context -> {
                                         TickData data = context.getSource().getServer().getOverworld()
                                                 .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                .getOrCreate(TickData.TYPE);
                                         data.challenge = 3;
                                         data.markDirty();
 
@@ -191,7 +191,7 @@ public class Every5MinutesBaseCommands {
                                     .executes(context -> {
                                         TickData data = context.getSource().getServer().getOverworld()
                                                 .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                .getOrCreate(TickData.TYPE);
                                         data.challenge = 4;
                                         data.markDirty();
 
@@ -207,7 +207,7 @@ public class Every5MinutesBaseCommands {
                                     .executes(context -> {
                                         TickData data = context.getSource().getServer().getOverworld()
                                                 .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                .getOrCreate(TickData.TYPE);
                                         data.challenge = 5;
                                         data.markDirty();
 
@@ -223,7 +223,7 @@ public class Every5MinutesBaseCommands {
                                     .executes(context -> {
                                         TickData data = context.getSource().getServer().getOverworld()
                                                 .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE, "e5m_tick_data");
+                                                .getOrCreate(TickData.TYPE);
                                         data.challenge = 6;
                                         data.markDirty();
 
