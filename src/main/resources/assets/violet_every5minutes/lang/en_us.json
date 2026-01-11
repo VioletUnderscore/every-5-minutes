@@ -1,0 +1,42 @@
+{
+  "meta.e5m.version": "Mod Version: %s",
+
+  "ui.e5m.every1": "Minecraft, but every...",
+  "ui.e5m.every2": "...%s",
+  "ui.e5m.e5m_menu": "Every 5 Minutes Menu",
+  "ui.e5m.challenge_menu": "Select A Challenge",
+  "ui.e5m.interval_menu": "Select An Interval",
+
+  "ui.e5m.challenge.current": "Current Challenge: %s",
+  "ui.e5m.challenge.intro": "Minecraft, but every %s %s",
+  "ui.e5m.challenge.1": "All Entities Teleport To a Player",
+  "ui.e5m.challenge.2": "The Tick Rate Increases",
+  "ui.e5m.challenge.3": "All Players Get Random Effects",
+  "ui.e5m.challenge.4": "Random Mobs Swarm The Players",
+  "ui.e5m.challenge.5": "All Players Lose Max Health",
+  "ui.e5m.challenge.6": "Every Mob Duplicates",
+
+  "ui.e5m.start": "Start Game",
+  "ui.e5m.stop": "Stop Game",
+  "ui.e5m.pause": "Pause Game",
+  "ui.e5m.resume": "Resume Game",
+
+  "tooltip.e5m.coming_soon": "Coming Soon...",
+  "tooltip.e5m.lag_warn": "WARNING: May Cause Severe Lag",
+
+  "time.e5m.1": "Tick(s)",
+  "time.e5m.2": "Second(s)",
+  "time.e5m.3": "Minute(s)",
+  "time.e5m.short.1": "Ticks",
+  "time.e5m.short.2": "Secs",
+  "time.e5m.short.3": "Mins",
+
+  "cmd.e5m.invalid_challenge": "Not a real challenge - choose a number between 1 and %s",
+  "cmd.e5m.interval_set": "Interval set to %s",
+  "cmd.e5m.start": "Starting the game...",
+  "cmd.e5m.stop": "Stopping the game...",
+  "cmd.e5m.pause": "Pausing the game...",
+  "cmd.e5m.resume": "Resuming the game...",
+  "cmd.e5m.game_active": "The game has already started",
+  "cmd.e5m.game_inactive": "The game has not started yet"
+}

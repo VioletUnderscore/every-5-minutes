@@ -3,8 +3,12 @@ package net.violetunderscore.every5minutes;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.TextWidget;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -26,15 +30,15 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.NbtWriteView;
-import net.minecraft.storage.WriteView;
 import net.minecraft.text.Text;
 import net.minecraft.util.ErrorReporter;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.GameMode;
-import net.minecraft.world.TeleportTarget;
+import net.violetunderscore.every5minutes.gui.ChallengesGui;
 import net.violetunderscore.every5minutes.returns.returnRandoms;
 import net.violetunderscore.every5minutes.vars.TickData;
 import org.slf4j.Logger;
@@ -45,6 +49,8 @@ import java.util.*;
 public class Every5Minutes implements ModInitializer {
 	public static final String MOD_ID = "violet_every5minutes";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+
+    public static final int challengeCount = 6;
 
 	private static final Identifier HEALTH_REDUCTION_ID = Identifier.of("e5m", "health_reduction");
 
@@ -431,6 +437,7 @@ public class Every5Minutes implements ModInitializer {
         }
     }
 
+    /*Extra code miscellaneous*/
 
 
 
@@ -447,4 +454,19 @@ public class Every5Minutes implements ModInitializer {
 			return "Unknown location";
 		}
 	}
+    public static TextWidget versionNumberWidget(Screen screen) {
+        ModContainer modContainer = FabricLoader.getInstance()
+                .getModContainer(MOD_ID)
+                .orElseThrow(() -> new RuntimeException("Mod not found!"));
+        String version = modContainer.getMetadata().getVersion().getFriendlyString();
+        return new TextWidget(
+                2,
+                screen.height - 10,
+                200,
+                10,
+                Text.translatable("meta.e5m.version", version).withColor(0x666666).formatted(Formatting.ITALIC).withoutShadow(),
+                screen.getTextRenderer()
+        );
+    }
+
 }

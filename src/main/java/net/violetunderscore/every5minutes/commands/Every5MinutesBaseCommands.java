@@ -1,12 +1,20 @@
 package net.violetunderscore.every5minutes.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.violetunderscore.every5minutes.Every5Minutes;
+import net.violetunderscore.every5minutes.gui.ChallengesGui;
+import net.violetunderscore.every5minutes.gui.IntervalGui;
 import net.violetunderscore.every5minutes.vars.TickData;
+import net.violetunderscore.every5minutes.gui.FiveMinutesGui;
+import net.violetunderscore.every5minutes.vars.TickDataSync;
 
 public class Every5MinutesBaseCommands {
     public static void registerCommands() {
@@ -18,63 +26,128 @@ public class Every5MinutesBaseCommands {
     }
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+        {
+            dispatcher.register(CommandManager.literal("FiveMinutes")
+                    .executes(context -> {
+                        if (context.getSource().isExecutedByPlayer()) {
+                            MinecraftClient client = MinecraftClient.getInstance();
+                            TickData data = TickData.retrieve(context);
+                            ServerPlayerEntity p = context.getSource().getPlayer();
+                            TickDataSync.sendToPlayer(p, data);
+                            client.execute(() -> {
+                                client.setScreen(new FiveMinutesGui());
+                            });
+                        } else {
+                            context.getSource().sendFeedback(() -> Text.literal("Only players can open menus"), true);
+                        }
+                        return 1;
+                    })
+            );
+        } // Five Minutes Menu
+        {
+            dispatcher.register(CommandManager.literal("FMChallenges")
+                    .executes(context -> {
+                        if (context.getSource().isExecutedByPlayer()) {
+                            MinecraftClient client = MinecraftClient.getInstance();
+                            TickData data = TickData.retrieve(context);
+                            ServerPlayerEntity p = context.getSource().getPlayer();
+                            TickDataSync.sendToPlayer(p, data);
+                            client.execute(() -> {
+                                client.setScreen(new ChallengesGui());
+                            });
+                        } else {
+                            context.getSource().sendFeedback(() -> Text.literal("Only players can open menus"), true);
+                        }
+                        return 1;
+                    })
+            );
+        } // Five Minutes Challenges Menu
+        {
+            dispatcher.register(CommandManager.literal("FiveMinutesChallenges")
+                    .executes(context -> {
+                        if (context.getSource().isExecutedByPlayer()) {
+                            MinecraftClient client = MinecraftClient.getInstance();
+                            TickData data = TickData.retrieve(context);
+                            ServerPlayerEntity p = context.getSource().getPlayer();
+                            TickDataSync.sendToPlayer(p, data);
+                            client.execute(() -> {
+                                client.setScreen(new IntervalGui());
+                            });
+                        } else {
+                            context.getSource().sendFeedback(() -> Text.literal("Only players can open menus"), true);
+                        }
+                        return 1;
+                    })
+            );
+        } // Five Minutes Interval Menu
+
         /*start/stop*/
         {
             dispatcher.register(CommandManager.literal("e5m")
                     .then(CommandManager.literal("pause")
                             .executes(context -> {
-                                TickData data = context.getSource().getServer().getOverworld()
-                                        .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE);
-                                data.active = false;
-                                data.markDirty();
+                                TickData data = TickData.retrieve(context);
+                                if (data.started) {
+                                    data.active = false;
+                                    data.markDirty();
 
-                                context.getSource().sendFeedback(() -> Text.literal("Pausing the game..."), true);
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.pause"), true);
+                                } else {
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.game_inactive").withColor(0xFF8888), true);
+                                }
                                 return 1;
                             }))
             );
             dispatcher.register(CommandManager.literal("e5m")
                     .then(CommandManager.literal("resume")
                             .executes(context -> {
-                                TickData data = context.getSource().getServer().getOverworld()
-                                        .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE);
-                                data.active = true;
-                                data.markDirty();
+                                TickData data = TickData.retrieve(context);
+                                if (data.started) {
+                                    data.active = true;
+                                    data.markDirty();
 
-                                context.getSource().sendFeedback(() -> Text.literal("Resuming the game..."), true);
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.resume"), true);
+                                } else {
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.game_inactive").withColor(0xFF8888), true);
+                                }
                                 return 1;
                             }))
             );
             dispatcher.register(CommandManager.literal("e5m")
                     .then(CommandManager.literal("stop")
                             .executes(context -> {
-                                TickData data = context.getSource().getServer().getOverworld()
-                                        .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE);
-                                data.active = false;
-                                data.counter = 0;
-                                data.ticks = 0;
-                                context.getSource().getServer().getTickManager().setTickRate(20);
-                                data.markDirty();
+                                TickData data = TickData.retrieve(context);
+                                if (data.started) {
+                                    data.active = false;
+                                    data.started = false;
+                                    data.counter = 0;
+                                    data.ticks = 0;
+                                    context.getSource().getServer().getTickManager().setTickRate(20);
+                                    data.markDirty();
 
-                                context.getSource().sendFeedback(() -> Text.literal("Stopping the game..."), true);
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.stop"), true);
+                                } else {
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.game_inactive").withColor(0xFF8888), true);
+                                }
                                 return 1;
                             }))
             );
             dispatcher.register(CommandManager.literal("e5m")
                     .then(CommandManager.literal("start")
                             .executes(context -> {
-                                TickData data = context.getSource().getServer().getOverworld()
-                                        .getPersistentStateManager()
-                                        .getOrCreate(TickData.TYPE);
-                                data.active = true;
-                                data.counter = 0;
-                                data.ticks = 0;
-                                context.getSource().getServer().getTickManager().setTickRate(20);
-                                data.markDirty();
+                                TickData data = TickData.retrieve(context);
+                                if (!data.started) {
+                                    data.active = true;
+                                    data.started = true;
+                                    data.counter = 0;
+                                    data.ticks = 0;
+                                    context.getSource().getServer().getTickManager().setTickRate(20);
+                                    data.markDirty();
 
-                                context.getSource().sendFeedback(() -> Text.literal("Starting the game..."), true);
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.start"), true);
+                                } else {
+                                    context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.game_active").withColor(0xFF8888), true);
+                                }
                                 return 1;
                             }))
             );
@@ -87,13 +160,11 @@ public class Every5MinutesBaseCommands {
                             .then(CommandManager.argument("interval", IntegerArgumentType.integer())
                                     .then(CommandManager.literal("ticks")
                                             .executes(context -> {
-                                                TickData data = context.getSource().getServer().getOverworld()
-                                                        .getPersistentStateManager()
-                                                        .getOrCreate(TickData.TYPE);
+                                                TickData data = TickData.retrieve(context);
                                                 data.interval = IntegerArgumentType.getInteger(context, "interval");
                                                 data.markDirty();
 
-                                                context.getSource().sendFeedback(() -> Text.literal(("Interval set to " + IntegerArgumentType.getInteger(context, "interval") + " ticks")), true);
+                                                context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.interval_set", readableTime(data.interval)), true);
                                                 return 1;
                                             }))
                             )
@@ -104,13 +175,11 @@ public class Every5MinutesBaseCommands {
                             .then(CommandManager.argument("interval", IntegerArgumentType.integer())
                                     .then(CommandManager.literal("seconds")
                                             .executes(context -> {
-                                                TickData data = context.getSource().getServer().getOverworld()
-                                                        .getPersistentStateManager()
-                                                        .getOrCreate(TickData.TYPE);
+                                                TickData data = TickData.retrieve(context);
                                                 data.interval = IntegerArgumentType.getInteger(context, "interval") * 20;
                                                 data.markDirty();
 
-                                                context.getSource().sendFeedback(() -> Text.literal(("Interval set to " + IntegerArgumentType.getInteger(context, "interval") + " seconds")), true);
+                                                context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.interval_set", readableTime(data.interval)), true);
                                                 return 1;
                                             }))
                             )
@@ -121,13 +190,11 @@ public class Every5MinutesBaseCommands {
                             .then(CommandManager.argument("interval", IntegerArgumentType.integer())
                                     .then(CommandManager.literal("minutes")
                                             .executes(context -> {
-                                                TickData data = context.getSource().getServer().getOverworld()
-                                                        .getPersistentStateManager()
-                                                        .getOrCreate(TickData.TYPE);
+                                                TickData data = TickData.retrieve(context);
                                                 data.interval = IntegerArgumentType.getInteger(context, "interval") * 20 * 60;
                                                 data.markDirty();
 
-                                                context.getSource().sendFeedback(() -> Text.literal(("Interval set to " + IntegerArgumentType.getInteger(context, "interval") + " minutes")), true);
+                                                context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.interval_set", readableTime(data.interval)), true);
                                                 return 1;
                                             }))
                             )
@@ -139,101 +206,58 @@ public class Every5MinutesBaseCommands {
         {
             dispatcher.register(CommandManager.literal("e5m")
                     .then(CommandManager.literal("challenge")
-                            .then(CommandManager.literal("1_TeleportEveryEntity")
+                            .then(CommandManager.argument("challenge", IntegerArgumentType.integer())
                                     .executes(context -> {
-                                        TickData data = context.getSource().getServer().getOverworld()
-                                                .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE);
-                                        data.challenge = 1;
-                                        data.markDirty();
+                                        int c = IntegerArgumentType.getInteger(context, "challenge");
+                                        if (c > Every5Minutes.challengeCount || c < 1) {
+                                            context.getSource().sendFeedback(() -> Text.translatable("cmd.e5m.invalid_challenge", Every5Minutes.challengeCount).withColor(0xFF8888), true);
+                                            return 0;
+                                        } else {
+                                            TickData data = TickData.retrieve(context);
+                                            data.challenge = c;
+                                            data.markDirty();
 
-                                        context.getSource().sendFeedback(() -> Text.literal("Current Challenge: Every Entity Gets Teleported To You"), true);
-                                        return 1;
-                                    })
-                            )
-                    )
-            );
-            dispatcher.register(CommandManager.literal("e5m")
-                    .then(CommandManager.literal("challenge")
-                            .then(CommandManager.literal("2_RaiseTickRate")
-                                    .executes(context -> {
-                                        TickData data = context.getSource().getServer().getOverworld()
-                                                .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE);
-                                        data.challenge = 2;
-                                        data.markDirty();
-
-                                        context.getSource().sendFeedback(() -> Text.literal("Current Challenge: The Tick Rate Increases By 10%"), true);
-                                        return 1;
-                                    })
-                            )
-                    )
-            );
-            dispatcher.register(CommandManager.literal("e5m")
-                    .then(CommandManager.literal("challenge")
-                            .then(CommandManager.literal("3_RandomPotionEffect")
-                                    .executes(context -> {
-                                        TickData data = context.getSource().getServer().getOverworld()
-                                                .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE);
-                                        data.challenge = 3;
-                                        data.markDirty();
-
-                                        context.getSource().sendFeedback(() -> Text.literal("Current Challenge: Every Player Gets A Random Effect"), true);
-                                        return 1;
-                                    })
-                            )
-                    )
-            );
-            dispatcher.register(CommandManager.literal("e5m")
-                    .then(CommandManager.literal("challenge")
-                            .then(CommandManager.literal("4_RandomSwarmOfMobs")
-                                    .executes(context -> {
-                                        TickData data = context.getSource().getServer().getOverworld()
-                                                .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE);
-                                        data.challenge = 4;
-                                        data.markDirty();
-
-                                        context.getSource().sendFeedback(() -> Text.literal("Current Challenge: A Swarm Of A Random Mob Appears"), true);
-                                        return 1;
-                                    })
-                            )
-                    )
-            );
-            dispatcher.register(CommandManager.literal("e5m")
-                    .then(CommandManager.literal("challenge")
-                            .then(CommandManager.literal("5_LoseHealth")
-                                    .executes(context -> {
-                                        TickData data = context.getSource().getServer().getOverworld()
-                                                .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE);
-                                        data.challenge = 5;
-                                        data.markDirty();
-
-                                        context.getSource().sendFeedback(() -> Text.literal("Current Challenge: You Permanently Lose Half A Heart"), true);
-                                        return 1;
-                                    })
-                            )
-                    )
-            );
-            dispatcher.register(CommandManager.literal("e5m")
-                    .then(CommandManager.literal("challenge")
-                            .then(CommandManager.literal("6_Mitosis")
-                                    .executes(context -> {
-                                        TickData data = context.getSource().getServer().getOverworld()
-                                                .getPersistentStateManager()
-                                                .getOrCreate(TickData.TYPE);
-                                        data.challenge = 6;
-                                        data.markDirty();
-
-                                        context.getSource().sendFeedback(() -> Text.literal("Current Challenge: Mobs Experience Mitosis"), true);
-                                        return 1;
+                                            context.getSource().sendFeedback(() ->
+                                                    Text.translatable("ui.e5m.challenge.current",
+                                                            Text.translatable("ui.e5m.challenge.intro",
+                                                                    readableTime(data.interval),
+                                                                    Text.translatable("ui.e5m.challenge." + data.challenge)
+                                                            )
+                                                    ), true);
+                                            return 1;
+                                        }
                                     })
                             )
                     )
             );
         }
+    }
+
+    public static String readableTime(int i) {
+        String s = "";
+        int t = 60 * 20;
+        if (i > t) {
+            s = s + (int)Math.floor((double)i / t) + " " +
+                    Text.translatable("time.e5m.3").getString();
+            if (i % t == 0) {
+                return s;
+            } else { s = s + ", "; }
+        }
+        i -= (int)Math.floor((double)i / t) * t;
+
+        t = 20;
+        if (i > t) {
+            s = s + (int)Math.floor((double)i / t) + " " +
+                    Text.translatable("time.e5m.2").getString();
+            if (i % t == 0) {
+                return s;
+            } else { s = s + ", "; }
+        }
+        i -= (int)Math.floor((double)i / t) * t;
+
+        s = s + i + " " +
+                Text.translatable("time.e5m.1").getString();
+        return s;
     }
 }
 
