@@ -147,13 +147,13 @@ public class Every5Minutes implements ModInitializer {
 			RegistryEntry<StatusEffect> effectEntry = Registries.STATUS_EFFECT.getEntry(Registries.STATUS_EFFECT.get(id));
 
 			Random random = new Random();
-			int amp = random.nextInt(5) + 1;
+			int amp = random.nextInt(5) - 1;
 
 			if (effectEntry == StatusEffects.INSTANT_DAMAGE || effectEntry == StatusEffects.INSTANT_HEALTH) {
 				player.addStatusEffect(new StatusEffectInstance(
 						effectEntry,
 						1,
-						amp
+                        (int)Math.ceil((float)amp / 2)
 				));
 			} else {
 				player.addStatusEffect(new StatusEffectInstance(
