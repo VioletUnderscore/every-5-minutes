@@ -2,7 +2,10 @@ package net.violetunderscore.every5minutes;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.block.BlockState;
@@ -27,6 +30,7 @@ import net.minecraft.network.packet.s2c.play.PositionFlag;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.NbtWriteView;
@@ -38,9 +42,12 @@ import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.GameMode;
+import net.violetunderscore.every5minutes.commands.Every5MinutesBaseCommands;
 import net.violetunderscore.every5minutes.gui.ChallengesGui;
+import net.violetunderscore.every5minutes.network.OpenGuiPayload;
 import net.violetunderscore.every5minutes.returns.returnRandoms;
 import net.violetunderscore.every5minutes.vars.TickData;
+import net.violetunderscore.every5minutes.vars.TickDataSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +125,8 @@ public class Every5Minutes implements ModInitializer {
 
 			data.markDirty();
 		});
+
+        Every5MinutesBaseCommands.registerCommands();
 	}
 
 

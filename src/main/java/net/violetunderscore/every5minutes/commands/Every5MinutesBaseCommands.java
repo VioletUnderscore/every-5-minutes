@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -12,6 +13,7 @@ import net.minecraft.text.Text;
 import net.violetunderscore.every5minutes.Every5Minutes;
 import net.violetunderscore.every5minutes.gui.ChallengesGui;
 import net.violetunderscore.every5minutes.gui.IntervalGui;
+import net.violetunderscore.every5minutes.network.OpenGuiPayload;
 import net.violetunderscore.every5minutes.vars.TickData;
 import net.violetunderscore.every5minutes.gui.FiveMinutesGui;
 import net.violetunderscore.every5minutes.vars.TickDataSync;
@@ -27,16 +29,28 @@ public class Every5MinutesBaseCommands {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         {
-            dispatcher.register(CommandManager.literal("FiveMinutes")
+            dispatcher.register(CommandManager.literal("d/e/v/g/u/i")
                     .executes(context -> {
                         if (context.getSource().isExecutedByPlayer()) {
-                            MinecraftClient client = MinecraftClient.getInstance();
                             TickData data = TickData.retrieve(context);
                             ServerPlayerEntity p = context.getSource().getPlayer();
                             TickDataSync.sendToPlayer(p, data);
-                            client.execute(() -> {
-                                client.setScreen(new FiveMinutesGui());
-                            });
+                            ServerPlayNetworking.send(p, new OpenGuiPayload(0));
+                        } else {
+                            context.getSource().sendFeedback(() -> Text.literal("Only players can open menus"), true);
+                        }
+                        return 1;
+                    })
+            );
+        } // Five Minutes Dev Menu
+        {
+            dispatcher.register(CommandManager.literal("FiveMinutes")
+                    .executes(context -> {
+                        if (context.getSource().isExecutedByPlayer()) {
+                            TickData data = TickData.retrieve(context);
+                            ServerPlayerEntity p = context.getSource().getPlayer();
+                            TickDataSync.sendToPlayer(p, data);
+                            ServerPlayNetworking.send(p, new OpenGuiPayload(1));
                         } else {
                             context.getSource().sendFeedback(() -> Text.literal("Only players can open menus"), true);
                         }
@@ -48,13 +62,10 @@ public class Every5MinutesBaseCommands {
             dispatcher.register(CommandManager.literal("FMChallenges")
                     .executes(context -> {
                         if (context.getSource().isExecutedByPlayer()) {
-                            MinecraftClient client = MinecraftClient.getInstance();
                             TickData data = TickData.retrieve(context);
                             ServerPlayerEntity p = context.getSource().getPlayer();
                             TickDataSync.sendToPlayer(p, data);
-                            client.execute(() -> {
-                                client.setScreen(new ChallengesGui());
-                            });
+                            ServerPlayNetworking.send(p, new OpenGuiPayload(2));
                         } else {
                             context.getSource().sendFeedback(() -> Text.literal("Only players can open menus"), true);
                         }
@@ -63,16 +74,13 @@ public class Every5MinutesBaseCommands {
             );
         } // Five Minutes Challenges Menu
         {
-            dispatcher.register(CommandManager.literal("FiveMinutesChallenges")
+            dispatcher.register(CommandManager.literal("FMInterval")
                     .executes(context -> {
                         if (context.getSource().isExecutedByPlayer()) {
-                            MinecraftClient client = MinecraftClient.getInstance();
                             TickData data = TickData.retrieve(context);
                             ServerPlayerEntity p = context.getSource().getPlayer();
                             TickDataSync.sendToPlayer(p, data);
-                            client.execute(() -> {
-                                client.setScreen(new IntervalGui());
-                            });
+                            ServerPlayNetworking.send(p, new OpenGuiPayload(3));
                         } else {
                             context.getSource().sendFeedback(() -> Text.literal("Only players can open menus"), true);
                         }
