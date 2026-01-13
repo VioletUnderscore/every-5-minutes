@@ -15,9 +15,6 @@ import net.violetunderscore.every5minutes.vars.TickDataSync;
 public class Every5MinutesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        PayloadTypeRegistry.playS2C().register(TickDataSync.ID, TickDataSync.CODEC);
-        PayloadTypeRegistry.playS2C().register(OpenGuiPayload.ID, OpenGuiPayload.CODEC);
-
         TickDataClient.init();
 
         ClientPlayNetworking.registerGlobalReceiver(OpenGuiPayload.ID, (payload, context) -> {

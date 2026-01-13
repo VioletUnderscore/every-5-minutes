@@ -1,21 +1,20 @@
 package net.violetunderscore.every5minutes.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.command.permission.Permission;
+import net.minecraft.command.permission.PermissionCheck;
+import net.minecraft.command.permission.PermissionLevel;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.violetunderscore.every5minutes.Every5Minutes;
-import net.violetunderscore.every5minutes.gui.ChallengesGui;
-import net.violetunderscore.every5minutes.gui.IntervalGui;
 import net.violetunderscore.every5minutes.network.OpenGuiPayload;
 import net.violetunderscore.every5minutes.vars.TickData;
-import net.violetunderscore.every5minutes.gui.FiveMinutesGui;
 import net.violetunderscore.every5minutes.vars.TickDataSync;
 
 public class Every5MinutesBaseCommands {
@@ -45,6 +44,7 @@ public class Every5MinutesBaseCommands {
         } // Five Minutes Dev Menu
         {
             dispatcher.register(CommandManager.literal("FiveMinutes")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .executes(context -> {
                         if (context.getSource().isExecutedByPlayer()) {
                             TickData data = TickData.retrieve(context);
@@ -60,6 +60,7 @@ public class Every5MinutesBaseCommands {
         } // Five Minutes Menu
         {
             dispatcher.register(CommandManager.literal("FMChallenges")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .executes(context -> {
                         if (context.getSource().isExecutedByPlayer()) {
                             TickData data = TickData.retrieve(context);
@@ -75,6 +76,7 @@ public class Every5MinutesBaseCommands {
         } // Five Minutes Challenges Menu
         {
             dispatcher.register(CommandManager.literal("FMInterval")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .executes(context -> {
                         if (context.getSource().isExecutedByPlayer()) {
                             TickData data = TickData.retrieve(context);
@@ -92,6 +94,7 @@ public class Every5MinutesBaseCommands {
         /*start/stop*/
         {
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("pause")
                             .executes(context -> {
                                 TickData data = TickData.retrieve(context);
@@ -107,6 +110,7 @@ public class Every5MinutesBaseCommands {
                             }))
             );
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("resume")
                             .executes(context -> {
                                 TickData data = TickData.retrieve(context);
@@ -122,6 +126,7 @@ public class Every5MinutesBaseCommands {
                             }))
             );
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("stop")
                             .executes(context -> {
                                 TickData data = TickData.retrieve(context);
@@ -141,6 +146,7 @@ public class Every5MinutesBaseCommands {
                             }))
             );
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("start")
                             .executes(context -> {
                                 TickData data = TickData.retrieve(context);
@@ -164,6 +170,7 @@ public class Every5MinutesBaseCommands {
         /*change time interval*/
         {
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("interval")
                             .then(CommandManager.argument("interval", IntegerArgumentType.integer())
                                     .then(CommandManager.literal("ticks")
@@ -179,6 +186,7 @@ public class Every5MinutesBaseCommands {
                     )
             );
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("interval")
                             .then(CommandManager.argument("interval", IntegerArgumentType.integer())
                                     .then(CommandManager.literal("seconds")
@@ -194,6 +202,7 @@ public class Every5MinutesBaseCommands {
                     )
             );
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("interval")
                             .then(CommandManager.argument("interval", IntegerArgumentType.integer())
                                     .then(CommandManager.literal("minutes")
@@ -213,6 +222,7 @@ public class Every5MinutesBaseCommands {
         /*change the challenge*/
         {
             dispatcher.register(CommandManager.literal("e5m")
+                    .requires(CommandManager.requirePermissionLevel(CommandManager.MODERATORS_CHECK))
                     .then(CommandManager.literal("challenge")
                             .then(CommandManager.argument("challenge", IntegerArgumentType.integer())
                                     .executes(context -> {
